@@ -1,0 +1,28 @@
+name: Validar sitio
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verificar archivos principales
+        run: |
+          for f in index.html about.html menu.html contact.html styles.css script.js; do
+            test -f "$f" || { echo "Falta $f"; exit 1; }
+          done
+          echo "Todos los archivos principales existen"
+
+      - name: Revisar enlaces rotos
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress './**/*.html'
+          fail: true
